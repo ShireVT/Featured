@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<title>視覺小說 Demo</title>
+<style>
+  body { background:#1e1e1e; color:#f3f3f3; font-family:"微軟正黑體", sans-serif; padding:2rem; line-height:1.6; }
+  #storySection { display:none; }
+  #story { background:#2a2a2a; padding:1.5rem; border-radius:10px; margin-bottom:1rem; font-size:1.15rem; white-space:pre-wrap; }
+  .choiceBtn, .ctrlBtn { background:#444; border:none; color:#fff; padding:.8rem 1.2rem; margin:.25rem; border-radius:8px; cursor:pointer; }
+  .choiceBtn:hover, .ctrlBtn:hover { background:#666; }
+  a.buttonLink {
+    display: inline-block; padding: 10px 20px; margin: 1rem 0; background:#444; color:#fff; border-radius:8px; text-decoration:none;
+  }
+  a.buttonLink:hover { background:#666; }
+</style>
+</head>
+<body>
+
+<h2>❖  畢設</h2>
+
+<div id="videoSection">
+  <p>🎬 開場影片（點下方連結在新視窗播放）</p>
+  <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="buttonLink">▶ 開頭影片</a><br/>
+  <button id="startBtn" class="ctrlBtn">進入故事</button>
+</div>
+
+<div id="storySection">
+  <div id="story"></div>
+  <div id="choices"></div>
+  <button id="backBtn" class="ctrlBtn">返回</button>
+</div>
+
+<script>
+const historyStack = [];
+const startBtn = document.getElementById('startBtn');
+const backBtn = document.getElementById('backBtn');
+
+const scenes = {
+  start: {
+    text: `律「大家好，我叫律，從今天開始就是這個團隊的一份子了……！」
+
+律怯生生地望著眼前的少女們，眼中帶著對未來的希冀。
+
+凌「……」
+
+凌黎無視了我，看起來滿不在乎的模樣。
+
+菟「歡~~~迎~~~」
+
+菟霓懶洋洋地回應著，看起來對我沒什麼興趣。
+
+愛「歡迎歡迎~！！」
+
+倒是愛醬情緒高昂地擺出歡迎姿勢，顯得尤為熱情。
+
+楔「好了，所有人安靜。」
+
+楔「新人來了，隨便來個人去帶她了解公司。」`,
+    next: 'assign'
+  },
+
+  assign: {
+    text: `菟「既然如此~~ 就把重責大任交給……愛醬吧~♪」
+凌「無所謂，我回去了。」
+愛「好呀好呀，交給我吧！」
+律「那就拜託妳了……！」
+
+《選擇參觀的地點》`,
+    choices: [
+      { text: '練舞室（菟霓）', next: 'dance' },
+      { text: '錄音室（凌黎）', next: 'record' },
+      { text: '奇怪房間（愛醬）', next: 'weird' }
+    ]
+  },
+
+  dance: {
+    text: '你來到練舞室，菟霓正懶洋洋地看著你。',
+    choices: []
+  },
+  record: {
+    text: '你來到錄音室，凌黎仍舊沉默寡言。',
+    choices: []
+  },
+
+  weird: {
+    text: '看到一間奇怪的房間。',
+    choices: [
+      { text: '進去', next: 'inside' },
+      { text: '必須進去', next: 'inside' },
+      { text: '我害怕，叫上愛醬', next: 'callAi' }
+    ]
+  },
+  inside: {
+    text: '你鼓起勇氣走進房間……',
+    choices: []
+  },
+  callAi: {
+    text: '愛醬：「欸？這裡好黑哦——我們還是一起吧！」',
+    choices: []
+  }
+};
+
+function renderScene(key) {
+  const scene = scenes[key];
+  document.getElementById('story').textContent = scene.text;
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+
+  if (scene.choices && scene.choices.length) {
+    scene.choices.forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'choiceBtn';
+      btn.textContent = c.text;
+      btn.onclick = () => {
+        historyStack.push(key);
+        renderScene(c.next);
+      };
+      choicesDiv.appendChild(btn);
+    });
+  }
+
+  backBtn.style.display = historyStack.length ? 'inline-block' : 'none';
+}
+
+startBtn.onclick = () => {
+  document.getElementById('videoSection').style.display = 'none';
+  document.getElementById('storySection').style.display = 'block';
+  renderScene('start');
+};
+
+backBtn.onclick = () => {
+  const prev = historyStack.pop();
+  if (prev) renderScene(prev);
+};
+</script>
+
+</body>
+</html>
